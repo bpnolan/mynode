@@ -11,12 +11,22 @@ app.set('port', process.env.port || 3000);
 
 app.use(express.static(__dirname + '/public'));
 
+/*testing middleware*/
+app.use(function(req, res, next){
+    res.locals.showTests = app.get('env') !== 'production' 
+                            && req.query.test === '1';
+    next();
+});
+
+
 app.get('/', function(req, res){
     res.render('home');
 });
 
 app.get('/about', function(req, res){
-    res.render('about', {fortune : fortune.getFortune()});
+    res.render('about', {fortune : fortune.getFortune(),
+                        pageTestScript : 'qa/tests-about.js'
+                        } );
 });
 
 /*custom 404 page*/
@@ -27,9 +37,9 @@ app.use(function(req, res, next){
 });
 
 /*custom 500 page*/
-app.use(function(err, res, req, next){
+app.use(function(err, req, res, next){
     console.error(err.stack);
-    res.type('text/plain');
+    // res.type('text/plain');
     res.status(500);
     res.render('500');
 });
